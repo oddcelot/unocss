@@ -57,8 +57,9 @@ and the underline in Zed. `vite-lit` proves the Lit case (utilities inside
    - turns on `semanticTokens`,
    - enables `semantic_tokens` for the relevant languages.
 4. **For the underline only**, add the styling rule to your **USER** settings
-   (`~/.config/zed/settings.json`) — Zed reads `semantic_token_rules` globally
-   and ignores worktree-local settings:
+   (`~/.config/zed/settings.json`). The per-language `semantic_tokens` settings
+   work in the project file, but `global_lsp_settings` is read only from user
+   settings — it is not available in a worktree-local `.zed/settings.json`:
    ```json
    { "global_lsp_settings": { "semantic_token_rules": [{ "token_type": "unocss", "underline": "#888888" }] } }
    ```

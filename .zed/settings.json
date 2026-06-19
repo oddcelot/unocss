@@ -31,8 +31,10 @@
     "Astro": { "semantic_tokens": "combined" }
   }
 
-  // NOTE: the underline STYLING rule must live in your USER settings
-  // (~/.config/zed/settings.json), not here — Zed reads semantic_token_rules
-  // globally and ignores worktree-local .zed/settings.json:
+  // NOTE: the `semantic_tokens: "combined"` settings above work here at the
+  // project level. The underline STYLING rule is different — it uses
+  // `global_lsp_settings`, which Zed only reads from your USER settings
+  // (~/.config/zed/settings.json); that key is not available in a worktree-local
+  // .zed/settings.json. Add it there:
   //   { "global_lsp_settings": { "semantic_token_rules": [{ "token_type": "unocss", "underline": "#888888" }] } }
 }
