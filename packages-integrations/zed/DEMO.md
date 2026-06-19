@@ -19,7 +19,7 @@ pnpm build                      # builds @unocss/language-server (dist/)
 node packages-integrations/zed/scripts/verify-examples.mjs
 ```
 
-Expected output — **16/16** examples emit tokens:
+Expected output — **20/20** examples emit tokens:
 
 ```
   ✅ astro                    6 tokens  (astro: src/pages/index.astro)
@@ -38,12 +38,19 @@ Expected output — **16/16** examples emit tokens:
   ✅ vite-vue3               10 tokens  (vue: src/App.vue)
   ✅ vite-vue3-postcss       26 tokens  (vue: src/App.vue)
   ✅ vite-vue3-scoped         3 tokens  (vue: src/App.vue)
+  ✅ vite-react              41 tokens  (typescriptreact: src/App.tsx)
+  ✅ vite-preact             44 tokens  (typescriptreact: src/app.tsx)
+  ✅ vite-solid              41 tokens  (typescriptreact: src/App.tsx)
+  ✅ vite-watch-mode         40 tokens  (typescriptreact: src/App.tsx)
 ```
 
 A token count > 0 means the server resolved the example's config and matched
 utilities in that file — exactly what powers completion, hover, color previews
 and the underline in Zed. `vite-lit` proves the Lit case (utilities inside
-`` html`...` `` template literals in a plain `.ts` file).
+`` html`...` `` template literals in a plain `.ts` file). The four `vite-react`/
+`vite-preact`/`vite-solid`/`vite-watch-mode` examples gained a `uno.config.ts`
+(mirroring their `vite.config.ts`) so the server resolves `presetAttributify`
+and highlights attributify syntax like `bg="blue-400"` too.
 
 ---
 
@@ -77,14 +84,21 @@ The language server resolves UnoCSS config **independently of the bundler**, the
 same way it does for the VSCode extension. A few examples therefore need an extra
 step or aren't covered:
 
-| Example                                                                        | Why                                                                                                                                                  | To enable                                            |
-| ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| `nuxt3-layers`                                                                 | config is generated into `.nuxt/`                                                                                                                    | run `nuxt prepare` first                             |
-| `sveltekit-scoped`                                                             | config imports `@julr/unocss-preset-forms`                                                                                                           | install that example's deps                          |
-| `vite-react`, `vite-preact`, `vite-solid`, `qwik`, `quasar`, `vite-watch-mode` | UnoCSS configured only inside `vite.config.ts` (no standalone `uno.config.ts`), and the bundler plugins it imports aren't installed in the workspace | install the example's deps, or add a `uno.config.ts` |
-| `vite-elm`, `vite-pug`, `marko-run`                                            | Elm / Pug / Marko aren't in the extension's language list                                                                                            | n/a                                                  |
+| Example                             | Why                                                                                                 | To enable                              |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| `nuxt3-layers`                      | config is generated into `.nuxt/`                                                                   | run `nuxt prepare` first               |
+| `sveltekit-scoped`                  | config imports `@julr/unocss-preset-forms`                                                          | install that example's deps            |
+| `qwik`, `quasar`                    | UnoCSS configured only inside the bundler plugin, and its imports aren't installed in the workspace | install deps, or add a `uno.config.ts` |
+| `vite-elm`, `vite-pug`, `marko-run` | Elm / Pug / Marko aren't in the extension's language list                                           | n/a                                    |
 
-The middle row is the key insight: editor support needs a config the standalone
-server can load (a `uno.config.ts`, or a `vite.config.ts` whose imports resolve).
-When config lives only in an uninstalled bundler plugin, there's nothing for the
-server — or VSCode — to read.
+The key insight: editor support needs a config the standalone server can load (a
+`uno.config.ts`, or a `vite.config.ts` whose imports resolve). When config lives
+only in an uninstalled bundler plugin, there's nothing for the server — or VSCode
+— to read. That's why `vite-react`/`vite-preact`/`vite-solid`/`vite-watch-mode`
+got a small `uno.config.ts` mirroring their `vite.config.ts`: with a resolvable
+config they now light up fully, attributify included.
+
+The language server also degrades gracefully when a config file _exists but fails
+to load_ (e.g. a `vite.config.ts` importing an uninstalled plugin): instead of
+dropping all support it falls back to a default `presetWind3` config, so standard
+utilities still highlight (added on the `feat/zed-extension` branch).

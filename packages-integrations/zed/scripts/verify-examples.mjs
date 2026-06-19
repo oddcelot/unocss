@@ -38,18 +38,20 @@ const WORKS = [
   ['vite-vue3', 'src/App.vue', 'vue'],
   ['vite-vue3-postcss', 'src/App.vue', 'vue'],
   ['vite-vue3-scoped', 'src/App.vue', 'vue'],
+  // These ship a uno.config.ts (mirroring their vite.config.ts) so the server
+  // resolves presetAttributify and highlights attributify syntax (bg="…").
+  ['vite-react', 'src/App.tsx', 'typescriptreact'],
+  ['vite-preact', 'src/app.tsx', 'typescriptreact'],
+  ['vite-solid', 'src/App.tsx', 'typescriptreact'],
+  ['vite-watch-mode', 'src/App.tsx', 'typescriptreact'],
 ]
 
 // Known caveats — documented, not failures of the extension (see DEMO.md).
 const CAVEATS = [
   ['nuxt3-layers', 'needs `nuxt prepare` first (config is generated into .nuxt/)'],
   ['sveltekit-scoped', 'config imports @julr/unocss-preset-forms; needs example deps installed'],
-  ['vite-react', 'config only in vite.config.ts; needs example deps installed'],
-  ['vite-preact', 'config only in vite.config.ts; needs example deps installed'],
-  ['vite-solid', 'config only in vite.config.ts; needs example deps installed'],
   ['qwik', 'config only in vite.config.ts; needs example deps installed'],
   ['quasar', 'config only in the Quasar plugin; needs example deps installed'],
-  ['vite-watch-mode', 'config only in vite.config.ts; needs example deps installed'],
   ['vite-elm', 'Elm — not in the extension language list'],
   ['vite-pug', 'Pug — not in the extension language list'],
   ['marko-run', 'Marko — not in the extension language list'],
