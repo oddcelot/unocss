@@ -9,6 +9,10 @@ repository = "https://github.com/unocss/unocss"
 [language_servers.unocss]
 name = "UnoCSS Language Server"
 # Includes plain TypeScript and CSS so Lit components and stylesheets are covered.
+# Elm, Marko, and Pug aren't built into Zed — they only match when the user has
+# the corresponding community language extension installed; until then Zed simply
+# never associates those files, so listing them here is harmless. The server's
+# extractors find UnoCSS classes in those files regardless of languageId.
 languages = [
   "HTML",
   "CSS",
@@ -21,6 +25,9 @@ languages = [
   "Markdown",
   "PHP",
   "ERB",
+  "Elm",
+  "Marko",
+  "Pug",
 ]
 
 # Map Zed language names to the server's expected LSP languageId strings.
@@ -36,3 +43,6 @@ Astro = "astro"
 Markdown = "markdown"
 PHP = "php"
 ERB = "erb"
+Elm = "elm"
+Marko = "marko"
+Pug = "pug"

@@ -44,17 +44,35 @@ const WORKS = [
   ['vite-preact', 'src/app.tsx', 'typescriptreact'],
   ['vite-solid', 'src/App.tsx', 'typescriptreact'],
   ['vite-watch-mode', 'src/App.tsx', 'typescriptreact'],
+  // Also ship a uno.config.ts, mirroring the config that otherwise lives only
+  // in vite.config.ts / quasar.config.js, so the server resolves presets
+  // without booting the full Qwik/Quasar toolchain.
+  ['qwik', 'src/routes/index.tsx', 'typescriptreact'],
+  ['quasar', 'src/pages/IndexPage.vue', 'vue'],
+  // These resolve config from external presets / build-generated files, so they
+  // need their own deps installed first (`pnpm install` inside the example,
+  // which also runs `nuxi prepare` for nuxt3-layers). The 4th tuple element is a
+  // prerequisite path; if it's missing the example is skipped with a hint
+  // instead of reported as a failure.
+  ['nuxt3-layers', 'app.vue', 'vue', '.nuxt/uno.config.mjs'],
+  ['sveltekit-scoped', 'src/routes/+page.svelte', 'svelte', 'node_modules/@julr/unocss-preset-forms'],
+  // vite-pug's UnoCSS lives in `<template lang="pug">` inside a .vue file, so the
+  // languageId is `vue` (already supported); its uno.config.ts adds extractorPug.
+  ['vite-pug', 'src/App.vue', 'vue'],
+  // The server extracts classes from .marko / .elm regardless of languageId.
+  // These now resolve because the example ships a standalone uno.config.ts; in
+  // Zed itself they additionally need the community Marko / Elm grammar
+  // extension installed (see CAVEATS) before Zed attaches the server.
+  ['marko-run', 'src/routes/+page.marko', 'marko'],
+  ['vite-elm', 'src/Main.elm', 'elm'],
 ]
 
-// Known caveats — documented, not failures of the extension (see DEMO.md).
+// Remaining caveats — the extension now lists these languages, but Zed has no
+// built-in grammar for them, so the underline only appears once the user installs
+// the matching community language extension. Not a limitation of this extension.
 const CAVEATS = [
-  ['nuxt3-layers', 'needs `nuxt prepare` first (config is generated into .nuxt/)'],
-  ['sveltekit-scoped', 'config imports @julr/unocss-preset-forms; needs example deps installed'],
-  ['qwik', 'config only in vite.config.ts; needs example deps installed'],
-  ['quasar', 'config only in the Quasar plugin; needs example deps installed'],
-  ['vite-elm', 'Elm — not in the extension language list'],
-  ['vite-pug', 'Pug — not in the extension language list'],
-  ['marko-run', 'Marko — not in the extension language list'],
+  ['marko-run', 'Zed needs a community Marko language extension installed'],
+  ['vite-elm', 'Zed needs a community Elm language extension installed'],
 ]
 
 function countTokens(file, languageId, rootDir) {
@@ -107,10 +125,16 @@ function countTokens(file, languageId, rootDir) {
 
 console.log(`\nUnoCSS Zed extension — semantic-token verification across examples\n${'='.repeat(64)}\n`)
 let ok = 0
-for (const [ex, file, lang] of WORKS) {
+let skipped = 0
+for (const [ex, file, lang, prereq] of WORKS) {
   const rel = `examples/${ex}/${file}`
   if (!existsSync(resolve(repoRoot, rel))) {
     console.log(`  ?  ${ex.padEnd(22)} (missing ${file})`)
+    continue
+  }
+  if (prereq && !existsSync(resolve(repoRoot, `examples/${ex}`, prereq))) {
+    console.log(`  ⏭  ${ex.padEnd(22)} run \`pnpm install\` in examples/${ex} first (needs ${prereq})`)
+    skipped++
     continue
   }
   const n = await countTokens(rel, lang, `examples/${ex}`)
@@ -118,7 +142,7 @@ for (const [ex, file, lang] of WORKS) {
   if (n > 0)
     ok++
 }
-console.log(`\n  ${ok}/${WORKS.length} examples emit tokens.\n\nKnown caveats (see DEMO.md):`)
+console.log(`\n  ${ok}/${WORKS.length - skipped} examples emit tokens${skipped ? ` (${skipped} skipped — deps not installed)` : ''}.\n\nKnown caveats (see DEMO.md):`)
 for (const [ex, why] of CAVEATS)
   console.log(`  ⚠️  ${ex.padEnd(22)} ${why}`)
 console.log('')
