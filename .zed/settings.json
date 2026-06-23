@@ -1,0 +1,40 @@
+{
+  // Demo workspace settings for the UnoCSS Zed extension.
+  // Open this repo root in Zed, install the dev extension (see DEMO.md), and the
+  // examples below light up with completion, hover, color previews and the
+  // semantic-token underline.
+
+  // Point the extension at the locally-built language server instead of the npm
+  // release. The path is relative to this repo (Zed runs the command with the
+  // project root as cwd). Requires `pnpm build` first.
+  "lsp": {
+    "unocss": {
+      "binary": {
+        "path": "node",
+        "arguments": ["packages-integrations/language-server/bin/unocss-language-server.js", "--stdio"]
+      },
+      "settings": {
+        "semanticTokens": true
+      }
+    }
+  },
+
+  // Enable semantic tokens for the languages the examples use.
+  "languages": {
+    "HTML": { "semantic_tokens": "combined" },
+    "CSS": { "semantic_tokens": "combined" },
+    "JavaScript": { "semantic_tokens": "combined" },
+    "TypeScript": { "semantic_tokens": "combined" },
+    "TSX": { "semantic_tokens": "combined" },
+    "Vue.js": { "semantic_tokens": "combined" },
+    "Svelte": { "semantic_tokens": "combined" },
+    "Astro": { "semantic_tokens": "combined" }
+  }
+
+  // NOTE: the `semantic_tokens: "combined"` settings above work here at the
+  // project level. The underline STYLING rule is different — it uses
+  // `global_lsp_settings`, which Zed only reads from your USER settings
+  // (~/.config/zed/settings.json); that key is not available in a worktree-local
+  // .zed/settings.json. Add it there:
+  //   { "global_lsp_settings": { "semantic_token_rules": [{ "token_type": "unocss", "underline": "#888888" }] } }
+}
